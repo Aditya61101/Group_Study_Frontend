@@ -1,74 +1,119 @@
 import React from "react";
-import { Col, Row, Container } from "react-bootstrap";
+import { Col, Row, Container, Modal, Button } from "react-bootstrap";
+import { LoadingSpinner } from "../components/LoadingSpinner";
 import { UpcomingSessionItem } from "../components/UpcomingSessionItem";
+import { SessionForm } from "../components/SessionForm";
+import SessionsContext from "../context/SessionsContext";
 
 export const UpcomingSessions = () => {
-  const dummySessions = [
-    {
-      title: "Physics",
-      subject: "study for physics",
-      start_date: "07-09-2022",
-      start_time: "11:50",
-      end_date: "10-09-2022",
-      end_time: "12:50",
-      max_students: "12",
-    },
-    {
-      title: "Chemistry",
-      subject: "study for chemistry",
-      start_date: "08-09-2022",
-      start_time: "12:50",
-      end_date: "08-09-2022",
-      end_time: "15:50",
-      max_students: "20",
-    },
-    {
-      title: "Maths",
-      subject: "study for maths",
-      start_date: "09-09-2022",
-      start_time: "13:44",
-      end_date: "09-09-2022",
-      end_time: "20:00",
-      max_students: "13",
-    },
-    {
-      title: "DSA",
-      subject: "study for dsa",
-      start_date: "11-09-2022",
-      start_time: "14:44",
-      end_date: "11-09-2022",
-      end_time: "15:21",
-      max_students: "21",
-    },
-    {
-      title: "others",
-      subject: "",
-      start_date: "11-09-2022",
-      start_time: "15:30",
-      end_date: "11-09-2022",
-      end_time: "17:30",
-      max_students: "21",
-    },
-  ];
+  const sessionsContext = React.useContext(SessionsContext);
+  const [show, setShow] = React.useState(false);
+  const [sesId, setSesId] = React.useState(null);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [array, setArray] = React.useState([]);
+  React.useEffect(() => {
+    setIsLoading(true);
+    console.log("worked");
+    sessionsContext.fetchUpcomingSessions();
+    setIsLoading(false);
+  }, []);
+  React.useEffect(() => {
+    setArray([...sessionsContext.upcomingSessions]);
+  }, [sessionsContext.upcomingSessions]);
+
+  // React.useEffect(() => {
+  //   console.log("sort: ", array);
+  // }, [array])
+
+  const handleClose = () => {
+    setShow(false);
+  };
+  const updateSessions = (sessionID) => {
+    setSesId(sessionID);
+    setShow(true);
+  };
+  const deleteSession = (sessionID) => {
+    sessionsContext.deleteSession(sessionID);
+  };
+  const regSession = (sessionID) => {
+    sessionsContext.registerSession(sessionID);
+  };
+  const handleSort = () => {
+    const sortedArray = [...array];
+    setArray(
+      sortedArray.sort((curr, next) => {
+        if (curr.startDate > next.startDate) {
+          return -1;
+        } else if (curr.endDate > next.endDate) {
+          return -1;
+        } else if (curr.startTime > next.startTime) {
+          return -1;
+        } else if (curr.endTime > next.endTime) {
+          return -1;
+        } else {
+          return 1;
+        }
+      })
+    );
+  };
+  let modal = (
+    <Modal show={show} onHide={handleClose}>
+      <Modal.Header closeButton />
+      <Modal.Body>
+        <SessionForm
+          method="PUT"
+          isModal={true}
+          sessionid={sesId}
+          handleClose={handleClose}
+        />
+      </Modal.Body>
+    </Modal>
+  );
+
+  let content = null;
+  if (isLoading) {
+    content = <LoadingSpinner />;
+  } else if (sessionsContext.upcomingSessions.length === 0) {
+    content = (
+      <div style={{ margin: "auto", fontSize: "20px" }}>
+        No, upcoming Study sessions!
+      </div>
+    );
+  } else {
+    content = (
+      <Container>
+        <Row>
+          {array.map((session) => {
+            return (
+              <Col lg={4} xl={4} md={6} key={session._id}>
+                <UpcomingSessionItem
+                  sessionId={session._id}
+                  createdById={session.user}
+                  title={session.title}
+                  subject={session.subject}
+                  start_date={session.startDate.substr(0, 10)}
+                  start_time={session.startTime}
+                  end_date={session.endDate.substr(0, 10)}
+                  end_time={session.endTime}
+                  max_students={session.maxStudents}
+                  updateSessions={updateSessions}
+                  deleteSession={deleteSession}
+                  regSession={regSession}
+                />
+              </Col>
+            );
+          })}
+        </Row>
+        <Button className="my-3 btn-lg" onClick={handleSort}>
+          Sort
+        </Button>
+      </Container>
+    );
+  }
   return (
-    <Container>
-      <Row>
-        {dummySessions.map((session) => {
-          return (
-            <Col lg={4} xl={4} md={6}>
-              <UpcomingSessionItem
-                title={session.title}
-                subject={session.subject}
-                start_date={session.start_date}
-                start_time={session.start_time}
-                end_date={session.end_date}
-                end_time={session.end_time}
-                max_students={session.max_students}
-              />
-            </Col>
-          );
-        })}
-      </Row>
-    </Container>
+    <>
+      {modal}
+      {content}
+    </>
   );
 };

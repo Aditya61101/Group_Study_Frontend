@@ -30,6 +30,9 @@ export const Navigation = () => {
               </Link>
             )}
             {authContext.isLoggedIn && (
+              <Link className="nav-link" to={"/createSession"}>{localStorage.getItem("email")}</Link>
+            )}
+            {authContext.isLoggedIn && (
               <Link className="nav-link" to={"/createSession"}>
                 Create Session
               </Link>
