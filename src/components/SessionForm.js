@@ -7,6 +7,13 @@ export const SessionForm = (props) => {
   const sessionsContext = React.useContext(SessionsContext);
   const [validated, setValidated] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
+  const [isINTitle, setIsINTitle] = React.useState(null);
+  const [isSDate, setIsISDate] = React.useState(null);
+  const [isEDate, setIsIEDate] = React.useState(null);
+  const [isSTime, setIsISTime] = React.useState(null);
+  const [isETime, setIsIETime] = React.useState(null);
+  const [isMStud, setNotMStud] = React.useState(null);
+
   const titleRef = React.useRef();
   const subjectRef = React.useRef();
   const startDRef = React.useRef();
@@ -16,36 +23,96 @@ export const SessionForm = (props) => {
   const maxStudRef = React.useRef();
 
   const handleSubmit = async (event) => {
-    const form = event.currentTarget;
     event.preventDefault();
-    if (form.checkValidity() === false) {
-      event.stopPropagation();
+    const title = titleRef.current.value;
+    const subject = subjectRef.current.value;
+    const startDate = startDRef.current.value;
+    const startTime = startTRef.current.value;
+    const endDate = endDRef.current.value;
+    const endTime = endTRef.current.value;
+    const maxStud = maxStudRef.current.value;
+    if (title.length === 0) {
+      setIsINTitle(true);
     } else {
-      setValidated(true);
-      setIsLoading(true);
-      const title = titleRef.current.value;
-      const subject = subjectRef.current.value;
-      const startDate = startDRef.current.value;
-      const startTime = startTRef.current.value;
-      console.log(startTime);
-      const endDate = endDRef.current.value;
-      const endTime = endTRef.current.value;
-      const maxStud = maxStudRef.current.value;
-      console.log(endDate);
-      const formData = {
-        title: title,
-        subject: subject,
-        startDate: startDate,
-        startTime: startTime,
-        endDate: endDate,
-        endTime: endTime,
-        maxStudents: maxStud,
-      };
-      sessionsContext.sessionSubmission(
-        formData,
-        props.method,
-        props.sessionid
-      );
+      setIsINTitle(false);
+    }
+    if (startDate.length === 0) {
+      setIsISDate(true);
+    } else {
+      setIsISDate(false);
+    }
+    if (endDate.length === 0) {
+      setIsIEDate(true);
+    } else {
+      setIsIEDate(false);
+    }
+    if (startTime.length === 0) {
+      setIsISTime(true);
+    } else {
+      setIsISTime(false);
+    }
+    if (endTime.length === 0) {
+      setIsIETime(true);
+    } else {
+      setIsIETime(false);
+    }
+    if (startTime.length && endTime.length) {
+      if (
+        (startTime[0] === "0" && endTime[0] === "0") ||
+        (startTime[0] !== "0" && endTime[0] !== "0")
+      ) {
+        if (startTime > endTime) {
+          setIsIETime(true);
+        } else {
+          setIsIETime(false);
+        }
+      }
+    }
+    if (startDate.length && endDate.length) {
+      if (startDate > endDate) {
+        setIsIEDate(true);
+      } else {
+        setIsIEDate(false);
+      }
+    }
+    if (!maxStud) {
+      setNotMStud(true);
+    } else {
+      setNotMStud(false);
+    }
+    if (
+      title.length &&
+      startDate.length &&
+      endDate.length &&
+      startTime.length &&
+      endTime.length &&
+      maxStud &&
+      startDate <= endDate
+    ) {
+      if (
+        (startTime[0] === "0" && endTime[0] === "0") ||
+        (startTime[0] !== "0" && endTime[0] !== "0")
+      ) {
+        if (startTime <= endTime) {
+          console.log("entered");
+          setValidated(true);
+          setIsLoading(true);
+          const formData = {
+            title: title,
+            subject: subject,
+            startDate: startDate,
+            startTime: startTime,
+            endDate: endDate,
+            endTime: endTime,
+            maxStudents: maxStud,
+          };
+          sessionsContext.sessionSubmission(
+            formData,
+            props.method,
+            props.sessionid
+          );
+        }
+      }
     }
   };
   let content = null;
@@ -60,7 +127,7 @@ export const SessionForm = (props) => {
         className={!props.isModal ? "form-wrap" : null}
         style={{ marginBottom: "30px" }}
       >
-        <h3 style={{ textAlign: "center" }}>New Group Study Session</h3>
+        <h3 style={{ textAlign: "center" }}>{props.title}</h3>
         <Row className="mb-3">
           <Form.Group as={Col} md={12} controlId="validationCustom01">
             <Form.Label>Title of the session</Form.Label>
@@ -68,9 +135,12 @@ export const SessionForm = (props) => {
               type="text"
               placeholder="Title of the session"
               ref={titleRef}
+              isInvalid={isINTitle}
               required
             />
-            <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+            <Form.Control.Feedback type="invalid">
+              Title is required
+            </Form.Control.Feedback>
           </Form.Group>
 
           <Form.Group
@@ -94,6 +164,7 @@ export const SessionForm = (props) => {
                 type="date"
                 aria-describedby="inputGroupPrepend"
                 ref={startDRef}
+                isInvalid={isSDate}
                 required
               />
               <Form.Control.Feedback type="invalid">
@@ -109,6 +180,7 @@ export const SessionForm = (props) => {
                 type="time"
                 aria-describedby="inputGroupPrepend"
                 ref={startTRef}
+                isInvalid={isSTime}
                 required
               />
               <Form.Control.Feedback type="invalid">
@@ -129,10 +201,11 @@ export const SessionForm = (props) => {
                 type="date"
                 aria-describedby="inputGroupPrepend"
                 ref={endDRef}
+                isInvalid={isEDate}
                 required
               />
               <Form.Control.Feedback type="invalid">
-                Please choose a end date.
+                Please choose a correct end date.
               </Form.Control.Feedback>
             </InputGroup>
           </Form.Group>
@@ -149,10 +222,11 @@ export const SessionForm = (props) => {
                 type="time"
                 aria-describedby="inputGroupPrepend"
                 ref={endTRef}
+                isInvalid={isETime}
                 required
               />
               <Form.Control.Feedback type="invalid">
-                Please choose a end time.
+                Please choose a correct end time.
               </Form.Control.Feedback>
             </InputGroup>
           </Form.Group>
@@ -170,16 +244,19 @@ export const SessionForm = (props) => {
                 aria-describedby="inputGroupPrepend"
                 placeholder="Maximum student"
                 ref={maxStudRef}
+                isInvalid={isMStud}
                 required
               />
               <Form.Control.Feedback type="invalid">
-                Please choose maximum students.
+                Please choose a valid maximum no. of students.
               </Form.Control.Feedback>
             </InputGroup>
           </Form.Group>
         </Row>
         <div className="d-grid">
-          <Button type="submit" onClick={props.handleClose}>Submit</Button>
+          <Button type="submit" onClick={props.handleClose}>
+            Submit
+          </Button>
         </div>
       </Form>
     );

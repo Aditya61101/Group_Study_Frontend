@@ -3,6 +3,6 @@ import { SessionForm } from '../components/SessionForm';
 
 export const CreateSession = () => {
   return (
-    <SessionForm method="POST" isModal={false}/>
+    <SessionForm method="POST" isModal={false} title={"New Group Study Session"}/>
   )
 }

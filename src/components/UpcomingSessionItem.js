@@ -7,9 +7,9 @@ import SessionsContext from "../context/SessionsContext";
 export const UpcomingSessionItem = (props) => {
   const sessionsContext = React.useContext(SessionsContext);
   const [disabled, setDisabled] = React.useState(true);
-  const [show,setShow] = React.useState(true);
-  const [showError,setShowError] = React.useState(null);
-  const [showSuccess,setShowSuccess] = React.useState(null);
+  const [show, setShow] = React.useState(true);
+  const [showError, setShowError] = React.useState("");
+  const [showSuccess, setShowSuccess] = React.useState("");
   const currentUser = localStorage.getItem("userID");
 
   const handleEdit = () => {
@@ -22,33 +22,57 @@ export const UpcomingSessionItem = (props) => {
   };
   const handleRegister = () => {
     props.regSession(props.sessionId);
-  }
+  };
   React.useEffect(() => {
     if (currentUser !== props.createdById) {
       setDisabled(false);
       setShow(false);
     }
-    if (props.sessionId===sessionsContext.registerSessionId&&sessionsContext.errorRegister) {
+    //to show error message
+    if (
+      props.sessionId === sessionsContext.registerSessionId &&
+      sessionsContext.success === false
+    ) {
       setShowError(sessionsContext.errorRegister);
-        setTimeout(() => {
-          setShowError(null);
-        }, 2000);
     }
-    if (props.sessionId===sessionsContext.registerSessionId&&sessionsContext.successRegister) {
+    setTimeout(() => {
+      setShowError(null);
+    }, 2000);
+    //to show success message
+    if (
+      props.sessionId === sessionsContext.registerSessionId &&
+      sessionsContext.success === true
+    ) {
       setShowSuccess(sessionsContext.successRegister);
-      setTimeout(() => {
-        setShowSuccess(null);
-      }, 2000);
     }
-  }, [currentUser, props.createdById,props.sessionId,sessionsContext.registerSessionId,sessionsContext.errorRegister,sessionsContext.successRegister]);
+    setTimeout(() => {
+      setShowSuccess(null);
+    }, 2000);
+  }, [
+    currentUser,
+    props.createdById,
+    props.sessionId,
+    sessionsContext.registerSessionId,
+    sessionsContext.errorRegister,
+    sessionsContext.successRegister,
+    sessionsContext.success,
+  ]);
   return (
     <div className="session-card">
-      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
         <p>Title: {props.title}</p>
-        {show&&<div>
-          <Edit className="mx-2" onClick={handleEdit}/>
-          <Delete onClick={handleDelete} />
-        </div>}
+        {show && (
+          <div>
+            <Edit className="mx-2" onClick={handleEdit} />
+            <Delete onClick={handleDelete} />
+          </div>
+        )}
       </div>
       <p>Subject: {props.subject}</p>
       <p>
@@ -60,10 +84,12 @@ export const UpcomingSessionItem = (props) => {
       <p>Maximum Students: {props.max_students}</p>
 
       <div className="d-grid">
-        <Button onClick={handleRegister} disabled={disabled}>Register</Button>
+        <Button onClick={handleRegister} disabled={disabled}>
+          Register
+        </Button>
       </div>
-      {showSuccess&&<small style={{color:"green"}}>{showSuccess}</small>}
-      {showError&&<small style={{color:"red"}}>{showError}</small>}
+      {showSuccess && <small style={{ color: "green" }}>{showSuccess}</small>}
+      {showError && <small style={{ color: "red" }}>{showError}</small>}
     </div>
   );
 };

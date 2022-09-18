@@ -21,10 +21,6 @@ export const UpcomingSessions = () => {
     setArray([...sessionsContext.upcomingSessions]);
   }, [sessionsContext.upcomingSessions]);
 
-  // React.useEffect(() => {
-  //   console.log("sort: ", array);
-  // }, [array])
-
   const handleClose = () => {
     setShow(false);
   };
@@ -38,23 +34,49 @@ export const UpcomingSessions = () => {
   const regSession = (sessionID) => {
     sessionsContext.registerSession(sessionID);
   };
-  const handleSort = () => {
+  const displaySessions = () => {
     const sortedArray = [...array];
-    setArray(
-      sortedArray.sort((curr, next) => {
-        if (curr.startDate > next.startDate) {
-          return -1;
-        } else if (curr.endDate > next.endDate) {
-          return -1;
-        } else if (curr.startTime > next.startTime) {
-          return -1;
-        } else if (curr.endTime > next.endTime) {
-          return -1;
-        } else {
+    const propComp = (sD, eD, sT, eT) => (a, b) => {
+      if (a[sD] !== b[sD]) {
+        if (a[sD] > b[sD]) {
           return 1;
+        } else {
+          return -1;
         }
-      })
-    );
+      } else if (a[eD] !== b[eD]) {
+        if (a[eD] > b[eD]) {
+          return 1;
+        } else {
+          return -1;
+        }
+      } else if (a[sT] !== b[sT]) {
+        if (a[sT] > b[sT]) {
+          return 1;
+        } else {
+          return -1;
+        }
+      } else if (a[eT] !== b[eT]) {
+        if (a[eT] > b[eT]) {
+          return 1;
+        } else {
+          return -1;
+        }
+      } else {
+        return 0;
+      }
+    };
+    console.log(isSort);
+    if (isSort) {
+      sortedArray.sort(
+        propComp("startDate", "endDate", "startTime", "endTime")
+      );
+    }
+    setArray(sortedArray);
+    console.log(sortedArray);
+  };
+  let isSort=true;
+  const handleSort = () => {
+    displaySessions();
   };
   let modal = (
     <Modal show={show} onHide={handleClose}>
@@ -65,6 +87,7 @@ export const UpcomingSessions = () => {
           isModal={true}
           sessionid={sesId}
           handleClose={handleClose}
+          title={"Edit the Session"}
         />
       </Modal.Body>
     </Modal>

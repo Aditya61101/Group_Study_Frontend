@@ -12,6 +12,7 @@ const SessionsProvider = (props) => {
   const [registerSessionId,setRegisterSessionId] = React.useState(null);
   const [errorDelete,setErrorDelete] = React.useState(null);
   const [errorSubmit,setErrorSubmit] = React.useState(null);
+  const [success, setSuccess] = React.useState(false);
 
   const fetchUpcomingSessions = async () => {
     let url = `${process.env.REACT_APP_BASENAME}api/upcoming_sessions`;
@@ -122,11 +123,13 @@ const SessionsProvider = (props) => {
         const data = await response.json();
         console.log(data);
         setSuccessRegister(data.message);
+        setSuccess(true);
         setRegisterSessionId(data.sessionId);
       } else {
         let errorMessage = "Not Registered";
         const data = await response.json();
         console.log(data);
+        setSuccess(false);
         setRegisterSessionId(data.sessionId);
         if (data && data.error) {
           errorMessage = data.error;
@@ -145,6 +148,7 @@ const SessionsProvider = (props) => {
     errorSubmit,
     errorRegister,
     successRegister,
+    success,
     sessionSubmission,
     deleteSession,
     fetchUpcomingSessions,
