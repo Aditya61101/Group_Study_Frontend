@@ -56,7 +56,7 @@ export const SessionForm = (props) => {
     } else {
       setIsIETime(false);
     }
-    if (startTime.length && endTime.length) {
+    if (startDate === endDate && startTime.length && endTime.length) {
       if (
         (startTime[0] === "0" && endTime[0] === "0") ||
         (startTime[0] !== "0" && endTime[0] !== "0")
@@ -90,8 +90,8 @@ export const SessionForm = (props) => {
       startDate <= endDate
     ) {
       if (
-        (startTime[0] === "0" && endTime[0] === "0") ||
-        (startTime[0] !== "0" && endTime[0] !== "0")
+        (startDate === endDate) && ((startTime[0] === "0" && endTime[0] === "0") ||
+        (startTime[0] !== "0" && endTime[0] !== "0"))
       ) {
         if (startTime <= endTime) {
           console.log("entered");
