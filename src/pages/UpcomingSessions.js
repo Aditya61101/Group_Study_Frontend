@@ -65,16 +65,14 @@ export const UpcomingSessions = () => {
         return 0;
       }
     };
-    console.log(isSort);
     if (isSort) {
       sortedArray.sort(
         propComp("startDate", "endDate", "startTime", "endTime")
       );
     }
     setArray(sortedArray);
-    console.log(sortedArray);
   };
-  let isSort=true;
+  let isSort = true;
   const handleSort = () => {
     displaySessions();
   };
